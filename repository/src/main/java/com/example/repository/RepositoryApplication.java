@@ -1,18 +1,38 @@
 package com.example.repository;
 
-import com.example.repository.model.product;
+import com.example.repository.model.Product;
 import com.example.repository.repository.ProductRepository;
-import org.apache.juli.logging.Log;
-import org.hibernate.internal.build.AllowSysOut;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.web.client.RestTemplate;
+
+
 
 @SpringBootApplication
 public class RepositoryApplication implements CommandLineRunner {
 
 	private ProductRepository productRepository;
+
+
+
+
+	@Autowired
+	private RestTemplate restTemplate;
+
+	@Bean
+	public RestTemplate restTemplate() {
+		return new RestTemplate();
+	}
+
+
+
+	private Logger LOG =  LoggerFactory.getLogger(RepositoryApplication.class);
 
 	@Autowired
 	public void productRepository(ProductRepository productRepository) {
@@ -25,7 +45,7 @@ public class RepositoryApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		product product1 = new product();
+		Product product1 = new Product();
 		product1.setName("Tester product");
 		product1.setDescription("This is a tester product");
 		product1.setCategory("TEST");
@@ -34,7 +54,7 @@ public class RepositoryApplication implements CommandLineRunner {
 
 		productRepository.save(product1);
 
-		product product2 = new product();
+		Product product2 = new Product();
 		product2.setName("Another Tester product");
 		product2.setDescription("This is a tester product");
 		product2.setCategory("TEST");
@@ -44,7 +64,7 @@ public class RepositoryApplication implements CommandLineRunner {
 		productRepository.save(product2);
 
 
-		product product3 = new product();
+		Product product3 = new Product();
 		product3.setName("Tester product");
 		product3.setDescription("This is a tester product");
 		product3.setCategory("TEST");
@@ -53,14 +73,17 @@ public class RepositoryApplication implements CommandLineRunner {
 
 		productRepository.save(product3);
 
-		product toUpdate = productRepository.findByType("SPECIFIC");
+		Product productFromRestTemplate  = restTemplate.getForObject("http://localhost:8080/api/products/c416ef56-eb04-4865-8c25-6abc75ffc24d", Product.class);
 
-		if(toUpdate != null) {
-			toUpdate.setName("Updated product");
-			toUpdate.setDescription("Updated");
-
-			productRepository.save(toUpdate);
-		}
+		LOG.info("Product received with rest template " + productFromRestTemplate.getCategory());
+//		product toUpdate = productRepository.findByType("SPECIFIC");
+//
+//		if(toUpdate != null) {
+//			toUpdate.setName("Updated product");
+//			toUpdate.setDescription("Updated");
+//
+//			productRepository.save(toUpdate);
+//		}
 
 //		productRepository.delete(product3);
 //
